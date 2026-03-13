@@ -15,3 +15,15 @@ export function sortPostsByDate(posts: Post[]): Post[] {
   });
 }
 
+export function getPostPreview(post: Post, maxWords = 10): string {
+  const source = (post.excerpt || post.content || "").trim();
+  if (!source) return "";
+  const words = source.split(/\s+/);
+  if (words.length <= maxWords) {
+    return words.join(" ");
+  }
+  const sliced = words.slice(0, maxWords).join(" ");
+  return `${sliced} ...`;
+}
+
+

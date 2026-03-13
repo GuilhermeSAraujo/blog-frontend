@@ -1,7 +1,8 @@
 import type { GetStaticProps, InferGetStaticPropsType } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { Box, Container, Heading, Stack, Text } from "@chakra-ui/react";
-import { Post, sortPostsByDate } from "../lib/types";
+import { Post, getPostPreview, sortPostsByDate } from "../lib/types";
 
 type HomePageProps = {
   posts: Post[];
@@ -74,6 +75,8 @@ export default function HomePage({
             <Stack gap={6}>
               {posts.map((post) => (
                 <Box
+                  as={Link}
+                  href={`/${String(post.id)}`}
                   key={post.id}
                   bg={cardBg}
                   p={6}
@@ -81,6 +84,8 @@ export default function HomePage({
                   shadow="sm"
                   borderWidth="1px"
                   borderColor="gray.200"
+                  _hover={{ shadow: "md", borderColor: "gray.300" }}
+                  transition="all 0.15s ease-out"
                 >
                   <Heading as="h2" size="md" mb={2}>
                     {post.title}
@@ -94,16 +99,9 @@ export default function HomePage({
                       })}
                     </Text>
                   )}
-                  {post.excerpt && (
+                  {getPostPreview(post) && (
                     <Text fontSize="md" color={muted}>
-                      {post.excerpt}
-                    </Text>
-                  )}
-                  {!post.excerpt && post.content && (
-                    <Text fontSize="md" color={muted}>
-                      {post.content.length > 200
-                        ? `${post.content.slice(0, 200)}…`
-                        : post.content}
+                      {getPostPreview(post)}
                     </Text>
                   )}
                 </Box>
