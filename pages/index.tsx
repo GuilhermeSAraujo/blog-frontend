@@ -50,7 +50,7 @@ export default function HomePage({
   return (
     <>
       <Head>
-        <title>Blog</title>
+        <title>Guilherme's Blog</title>
         <meta name="description" content="Blog posts" />
       </Head>
       <Box bg="bg.subtle" minH="100vh" py={12}>
