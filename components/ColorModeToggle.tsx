@@ -7,9 +7,10 @@ export function ColorModeToggle() {
   const { appearance, setAppearance } = useColorMode();
 
   return (
-    <Box position="fixed" top={4} right={4} zIndex="sticky">
+    <Box position="fixed" top={4} right={4} zIndex="sticky" cursor="pointer">
       <SegmentGroup.Root
         aria-label="Color mode"
+        cursor="pointer"
         value={appearance}
         onValueChange={(d) => {
           const v = d.value;
@@ -17,6 +18,7 @@ export function ColorModeToggle() {
         }}
       >
         <SegmentGroup.Items
+          cursor="pointer"
           items={[
             { value: "light", label: "Light" },
             { value: "dark", label: "Dark" },
