@@ -1,7 +1,9 @@
 import type { GetStaticProps, InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { Box, Container, Heading, Stack, Text } from "@chakra-ui/react";
+import { Box, chakra, Container, Heading, Stack, Text } from "@chakra-ui/react";
+
+const PostCardLink = chakra(Link);
 import {
   Post,
   postFromWire,
@@ -68,8 +70,7 @@ export default function HomePage({
           ) : (
             <Stack gap={6}>
               {posts.map((post) => (
-                <Box
-                  as={Link}
+                <PostCardLink
                   href={`/${encodeURIComponent(post.slug)}`}
                   key={post.slug}
                   bg={cardBg}
@@ -101,7 +102,7 @@ export default function HomePage({
                       {getPostPreview(post)}
                     </Text>
                   )}
-                </Box>
+                </PostCardLink>
               ))}
             </Stack>
           )}

@@ -10,6 +10,7 @@ import {
   Box,
   Container,
   Heading,
+  Link,
   Spinner,
   Text,
 } from "@chakra-ui/react";
@@ -144,9 +145,8 @@ export default function PostPage({
                     </Box>
                   ),
                   a: ({ children, href }) => (
-                    <Box
-                      as="a"
-                      href={href}
+                    <Link
+                      href={href ?? "#"}
                       color="blue.600"
                       textDecoration="underline"
                       _hover={{ color: "blue.700" }}
@@ -154,7 +154,7 @@ export default function PostPage({
                       rel="noreferrer"
                     >
                       {children}
-                    </Box>
+                    </Link>
                   ),
                   code: ({ children }) => (
                     <Box
