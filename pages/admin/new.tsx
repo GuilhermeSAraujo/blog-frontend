@@ -19,8 +19,13 @@ import { useAdminAuth } from "../../lib/useAdminAuth";
 export default function AdminNewPostPage() {
   const router = useRouter();
   const { isChecking, isLoggedIn } = useAdminAuth();
+  const [slug, setSlug] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [publishedAt, setPublishedAt] = useState(
+    () => new Date().toISOString().slice(0, 10)
+  );
+  const [draft, setDraft] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -32,11 +37,19 @@ export default function AdminNewPostPage() {
       const res = await fetch(`${getApiBaseUrl()}/api/post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content, "tag-ids": [] }),
+        body: JSON.stringify({
+          slug,
+          title,
+          content,
+          tags: [],
+          "published-at": publishedAt,
+          "draft?": draft,
+        }),
       });
       if (res.status === 201) {
-        await res.json().catch(() => ({})); // consume body; id available if needed
-        router.push("/admin");
+        const body = await res.json().catch(() => ({}));
+        const createdSlug = body.slug ?? slug;
+        router.push(`/admin/${encodeURIComponent(createdSlug)}`);
         return;
       }
       setError(res.statusText || "Failed to create post");
@@ -47,9 +60,7 @@ export default function AdminNewPostPage() {
     }
   }
 
-  if (isChecking || !isLoggedIn) {
-    return null;
-  }
+  if (isChecking || !isLoggedIn) return null;
 
   return (
     <>
@@ -62,6 +73,14 @@ export default function AdminNewPostPage() {
             New post
           </Heading>
           <form onSubmit={handleSubmit}>
+            <Field.Root required mb={4}>
+              <Field.Label>Slug</Field.Label>
+              <Input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="my-post-slug"
+              />
+            </Field.Root>
             <Field.Root required mb={4}>
               <Field.Label>Title</Field.Label>
               <Input
@@ -78,6 +97,28 @@ export default function AdminNewPostPage() {
                 placeholder="Post content"
                 rows={12}
               />
+            </Field.Root>
+            <Field.Root mb={4}>
+              <Field.Label>Publish date</Field.Label>
+              <Input
+                type="date"
+                value={publishedAt}
+                onChange={(e) => setPublishedAt(e.target.value)}
+              />
+            </Field.Root>
+            <Field.Root mb={4}>
+              <Box display="flex" alignItems="center" gap={2}>
+                <input
+                  id="draft-checkbox"
+                  type="checkbox"
+                  checked={draft}
+                  onChange={(e) => setDraft(e.target.checked)}
+                  style={{ width: 16, height: 16 }}
+                />
+                <Field.Label htmlFor="draft-checkbox" mb={0}>
+                  Save as draft
+                </Field.Label>
+              </Box>
             </Field.Root>
             {error && (
               <Text color="red.500" mb={4}>

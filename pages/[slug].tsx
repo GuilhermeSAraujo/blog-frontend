@@ -13,7 +13,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
-import { Post } from "../lib/types";
+import { Post, postFromWire } from "../lib/types";
 
 type PostPageProps = {
   post: Post | null;
@@ -23,82 +23,45 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const baseUrl = process.env.API_BASE_URL;
 
   if (!baseUrl) {
-    return {
-      paths: [],
-      fallback: "blocking",
-    };
+    return { paths: [], fallback: "blocking" };
   }
 
   try {
     const res = await fetch(`${baseUrl}/api/post`);
-    if (!res.ok) {
-      return {
-        paths: [],
-        fallback: "blocking",
-      };
-    }
-    const data = (await res.json()) as Post[];
-    const posts = Array.isArray(data) ? data : [];
+    if (!res.ok) return { paths: [], fallback: "blocking" };
 
-    const paths = posts.map((post) => ({
-      params: { id: String(post.id) },
-    }));
+    const data = (await res.json()) as Record<string, unknown>[];
+    const posts = Array.isArray(data) ? data.map(postFromWire) : [];
 
     return {
-      paths,
+      paths: posts.map((post) => ({ params: { slug: post.slug } })),
       fallback: "blocking",
     };
   } catch {
-    return {
-      paths: [],
-      fallback: "blocking",
-    };
+    return { paths: [], fallback: "blocking" };
   }
 };
 
 export const getStaticProps: GetStaticProps<PostPageProps> = async (
   context
 ) => {
-  const { params } = context;
-  const id = params?.id;
+  const slug = context.params?.slug;
   const baseUrl = process.env.API_BASE_URL;
 
-  if (!baseUrl || !id || typeof id !== "string") {
-    return {
-      notFound: true,
-      revalidate: 300,
-    };
+  if (!baseUrl || !slug || typeof slug !== "string") {
+    return { notFound: true, revalidate: 300 };
   }
 
   try {
-    const res = await fetch(`${baseUrl}/api/post`);
-    if (!res.ok) {
-      return {
-        notFound: true,
-        revalidate: 300,
-      };
-    }
-    const data = (await res.json()) as Post[];
-    const posts = Array.isArray(data) ? data : [];
-    const post =
-      posts.find((p) => String(p.id) === String(id)) ?? null;
+    const res = await fetch(
+      `${baseUrl}/api/post/${encodeURIComponent(slug)}`
+    );
+    if (!res.ok) return { notFound: true, revalidate: 300 };
 
-    if (!post) {
-      return {
-        notFound: true,
-        revalidate: 300,
-      };
-    }
-
-    return {
-      props: { post },
-      revalidate: 300,
-    };
+    const raw = (await res.json()) as Record<string, unknown>;
+    return { props: { post: postFromWire(raw) }, revalidate: 300 };
   } catch {
-    return {
-      notFound: true,
-      revalidate: 300,
-    };
+    return { notFound: true, revalidate: 300 };
   }
 };
 
@@ -120,9 +83,7 @@ export default function PostPage({
     );
   }
 
-  if (!post) {
-    return null;
-  }
+  if (!post) return null;
 
   const bg = "gray.50";
   const muted = "gray.600";
@@ -131,19 +92,16 @@ export default function PostPage({
     <>
       <Head>
         <title>{post.title}</title>
-        <meta
-          name="description"
-          content={post.excerpt || undefined}
-        />
+        <meta name="description" content={post.excerpt || undefined} />
       </Head>
       <Box bg={bg} minH="100vh" py={12}>
         <Container maxW="3xl">
           <Heading as="h1" size="2xl" mb={4}>
             {post.title}
           </Heading>
-          {post.createdAt && (
+          {post.publishedAt && (
             <Text fontSize="sm" color={muted} mb={6}>
-              {new Date(post.createdAt).toLocaleDateString(undefined, {
+              {new Date(post.publishedAt).toLocaleDateString(undefined, {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -170,9 +128,21 @@ export default function PostPage({
                       {children}
                     </Heading>
                   ),
-                  ul: ({ children }) => <Box as="ul" pl={6} mb={4}>{children}</Box>,
-                  ol: ({ children }) => <Box as="ol" pl={6} mb={4}>{children}</Box>,
-                  li: ({ children }) => <Box as="li" mb={1}>{children}</Box>,
+                  ul: ({ children }) => (
+                    <Box as="ul" pl={6} mb={4}>
+                      {children}
+                    </Box>
+                  ),
+                  ol: ({ children }) => (
+                    <Box as="ol" pl={6} mb={4}>
+                      {children}
+                    </Box>
+                  ),
+                  li: ({ children }) => (
+                    <Box as="li" mb={1}>
+                      {children}
+                    </Box>
+                  ),
                   a: ({ children, href }) => (
                     <Box
                       as="a"
@@ -209,4 +179,3 @@ export default function PostPage({
     </>
   );
 }
-

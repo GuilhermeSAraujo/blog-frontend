@@ -16,11 +16,11 @@ import {
 } from "@chakra-ui/react";
 import { getApiBaseUrl } from "../../lib/api";
 import { useAdminAuth } from "../../lib/useAdminAuth";
-import { Post } from "../../lib/types";
+import { Post, postFromWire, postEditsToWire } from "../../lib/types";
 
 export default function AdminEditPostPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const { slug } = router.query;
   const { isChecking, isLoggedIn } = useAdminAuth();
   const [post, setPost] = useState<Post | null | undefined>(undefined);
   const [title, setTitle] = useState("");
@@ -29,44 +29,43 @@ export default function AdminEditPostPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isLoggedIn || !id || typeof id !== "string") return;
+    if (!isLoggedIn || !slug || typeof slug !== "string") return;
     let cancelled = false;
-    fetch(`${getApiBaseUrl()}/api/post`)
+    fetch(`${getApiBaseUrl()}/api/post/${encodeURIComponent(slug)}`)
       .then((res) => {
+        if (res.status === 404) throw new Error("not-found");
         if (!res.ok) throw new Error(res.statusText);
         return res.json();
       })
-      .then((data: Post[]) => {
+      .then((raw: Record<string, unknown>) => {
         if (cancelled) return;
-        const list = Array.isArray(data) ? data : [];
-        const found = list.find((p) => String(p.id) === String(id));
-        if (found) {
-          setPost(found);
-          setTitle(found.title);
-          setContent(found.content ?? "");
-        } else {
-          setPost(null);
-        }
+        const found = postFromWire(raw);
+        setPost(found);
+        setTitle(found.title);
+        setContent(found.content ?? "");
       })
-      .catch(() => {
-        if (!cancelled) setPost(null);
+      .catch((e: Error) => {
+        if (!cancelled) setPost(e.message === "not-found" ? null : null);
       });
     return () => {
       cancelled = true;
     };
-  }, [isLoggedIn, id]);
+  }, [isLoggedIn, slug]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (post == null || id == null || typeof id !== "string") return;
+    if (post == null || slug == null || typeof slug !== "string") return;
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${getApiBaseUrl()}/api/post/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content }),
-      });
+      const res = await fetch(
+        `${getApiBaseUrl()}/api/post/${encodeURIComponent(slug)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(postEditsToWire({ title, content })),
+        }
+      );
       if (res.status === 200) {
         router.push("/admin");
         return;
@@ -83,13 +82,16 @@ export default function AdminEditPostPage() {
     }
   }
 
-  if (isChecking || !isLoggedIn) {
-    return null;
-  }
+  if (isChecking || !isLoggedIn) return null;
 
   if (post === undefined) {
     return (
-      <Box minH="100vh" display="flex" alignItems="center" justifyContent="center">
+      <Box
+        minH="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
         <Spinner />
       </Box>
     );

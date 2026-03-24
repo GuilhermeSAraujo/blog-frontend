@@ -2,7 +2,12 @@ import type { GetStaticProps, InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { Box, Container, Heading, Stack, Text } from "@chakra-ui/react";
-import { Post, getPostPreview, sortPostsByDate } from "../lib/types";
+import {
+  Post,
+  postFromWire,
+  getPostPreview,
+  sortPostsByDate,
+} from "../lib/types";
 
 type HomePageProps = {
   posts: Post[];
@@ -13,25 +18,19 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
 
   if (!baseUrl) {
     console.error("API_BASE_URL is not defined");
-    return {
-      props: {
-        posts: [],
-      },
-      revalidate: 300,
-    };
+    return { props: { posts: [] }, revalidate: 300 };
   }
 
   let posts: Post[] = [];
 
   try {
     const res = await fetch(`${baseUrl}/api/post`);
-
     if (!res.ok) {
       console.error("Failed to fetch posts", res.status, res.statusText);
     } else {
-      const data = (await res.json()) as Post[];
+      const data = (await res.json()) as Record<string, unknown>[];
       if (Array.isArray(data)) {
-        posts = sortPostsByDate(data);
+        posts = sortPostsByDate(data.map(postFromWire));
       } else {
         console.error("Unexpected posts response shape", data);
       }
@@ -40,12 +39,7 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
     console.error("Error fetching posts", error);
   }
 
-  return {
-    props: {
-      posts,
-    },
-    revalidate: 300,
-  };
+  return { props: { posts }, revalidate: 300 };
 };
 
 export default function HomePage({
@@ -76,8 +70,8 @@ export default function HomePage({
               {posts.map((post) => (
                 <Box
                   as={Link}
-                  href={`/${String(post.id)}`}
-                  key={post.id}
+                  href={`/${encodeURIComponent(post.slug)}`}
+                  key={post.slug}
                   bg={cardBg}
                   p={6}
                   rounded="lg"
@@ -90,13 +84,16 @@ export default function HomePage({
                   <Heading as="h2" size="md" mb={2}>
                     {post.title}
                   </Heading>
-                  {post.createdAt && (
+                  {post.publishedAt && (
                     <Text fontSize="sm" color={muted} mb={2}>
-                      {new Date(post.createdAt).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {new Date(post.publishedAt).toLocaleDateString(
+                        undefined,
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
                     </Text>
                   )}
                   {getPostPreview(post) && (
@@ -113,4 +110,3 @@ export default function HomePage({
     </>
   );
 }
-

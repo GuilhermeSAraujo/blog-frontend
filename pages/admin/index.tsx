@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { getApiBaseUrl } from "../../lib/api";
 import { useAdminAuth } from "../../lib/useAdminAuth";
-import { Post, sortPostsByDate } from "../../lib/types";
+import { Post, postFromWire, sortPostsByDate } from "../../lib/types";
 
 export default function AdminListPage() {
   const router = useRouter();
@@ -32,11 +32,17 @@ export default function AdminListPage() {
         if (!res.ok) throw new Error(res.statusText);
         return res.json();
       })
-      .then((data: Post[]) => {
-        if (!cancelled) setPosts(sortPostsByDate(Array.isArray(data) ? data : []));
+      .then((data: Record<string, unknown>[]) => {
+        if (!cancelled)
+          setPosts(
+            sortPostsByDate(
+              Array.isArray(data) ? data.map(postFromWire) : []
+            )
+          );
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load posts");
+        if (!cancelled)
+          setError(e instanceof Error ? e.message : "Failed to load posts");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -48,7 +54,12 @@ export default function AdminListPage() {
 
   if (isChecking || !isLoggedIn) {
     return (
-      <Box minH="100vh" display="flex" alignItems="center" justifyContent="center">
+      <Box
+        minH="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
         <Spinner />
       </Box>
     );
@@ -61,7 +72,12 @@ export default function AdminListPage() {
       </Head>
       <Box minH="100vh" py={12} bg="gray.50">
         <Container maxW="3xl">
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={6}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={6}
+          >
             <Heading size="lg">Admin – Posts</Heading>
             <Button
               variant="ghost"
@@ -92,7 +108,7 @@ export default function AdminListPage() {
             <Stack gap={4}>
               {posts.map((post) => (
                 <Box
-                  key={String(post.id)}
+                  key={post.slug}
                   p={4}
                   bg="white"
                   rounded="md"
@@ -103,14 +119,16 @@ export default function AdminListPage() {
                 >
                   <Box>
                     <Text fontWeight="medium">{post.title}</Text>
-                    {post.createdAt && (
+                    {post.publishedAt && (
                       <Text fontSize="sm" color="gray.500">
-                        {new Date(post.createdAt).toLocaleDateString()}
+                        {new Date(post.publishedAt).toLocaleDateString()}
                       </Text>
                     )}
                   </Box>
                   <Button asChild size="sm" variant="outline">
-                    <Link href={`/admin/${post.id}`}>Edit</Link>
+                    <Link href={`/admin/${encodeURIComponent(post.slug)}`}>
+                      Edit
+                    </Link>
                   </Button>
                 </Box>
               ))}
