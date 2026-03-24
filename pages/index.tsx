@@ -47,24 +47,20 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
 export default function HomePage({
   posts,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const bg = "gray.50";
-  const cardBg = "white";
-  const muted = "gray.600";
-
   return (
     <>
       <Head>
         <title>Blog</title>
         <meta name="description" content="Blog posts" />
       </Head>
-      <Box bg={bg} minH="100vh" py={12}>
+      <Box bg="bg.subtle" minH="100vh" py={12}>
         <Container maxW="3xl">
           <Heading as="h1" size="2xl" mb={8}>
             Blog
           </Heading>
 
           {posts.length === 0 ? (
-            <Text fontSize="lg" color={muted}>
+            <Text fontSize="lg" color="fg.muted">
               No posts found.
             </Text>
           ) : (
@@ -73,20 +69,20 @@ export default function HomePage({
                 <PostCardLink
                   href={`/${encodeURIComponent(post.slug)}`}
                   key={post.slug}
-                  bg={cardBg}
+                  bg="bg.panel"
                   p={6}
                   rounded="lg"
                   shadow="sm"
                   borderWidth="1px"
-                  borderColor="gray.200"
-                  _hover={{ shadow: "md", borderColor: "gray.300" }}
+                  borderColor="border"
+                  _hover={{ shadow: "md", borderColor: "border.emphasized" }}
                   transition="all 0.15s ease-out"
                 >
                   <Heading as="h2" size="md" mb={2}>
                     {post.title}
                   </Heading>
                   {post.publishedAt && (
-                    <Text fontSize="sm" color={muted} mb={2}>
+                    <Text fontSize="sm" color="fg.muted" mb={2}>
                       {new Date(post.publishedAt).toLocaleDateString(
                         undefined,
                         {
@@ -98,7 +94,7 @@ export default function HomePage({
                     </Text>
                   )}
                   {getPostPreview(post) && (
-                    <Text fontSize="md" color={muted}>
+                    <Text fontSize="md" color="fg.muted">
                       {getPostPreview(post)}
                     </Text>
                   )}

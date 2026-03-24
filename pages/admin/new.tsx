@@ -67,7 +67,7 @@ export default function AdminNewPostPage() {
       <Head>
         <title>New post</title>
       </Head>
-      <Box minH="100vh" py={12} bg="gray.50">
+      <Box minH="100vh" py={12} bg="bg.subtle">
         <Container maxW="2xl">
           <Heading size="lg" mb={6}>
             New post
@@ -121,7 +121,7 @@ export default function AdminNewPostPage() {
               </Box>
             </Field.Root>
             {error && (
-              <Text color="red.500" mb={4}>
+              <Text color="fg.error" mb={4}>
                 {error}
               </Text>
             )}

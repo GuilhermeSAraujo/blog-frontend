@@ -103,7 +103,7 @@ export default function AdminEditPostPage() {
         <Head>
           <title>Post not found</title>
         </Head>
-        <Box minH="100vh" py={12} bg="gray.50">
+        <Box minH="100vh" py={12} bg="bg.subtle">
           <Container maxW="2xl">
             <Heading size="lg" mb={4}>
               Post not found
@@ -122,7 +122,7 @@ export default function AdminEditPostPage() {
       <Head>
         <title>Edit: {post.title}</title>
       </Head>
-      <Box minH="100vh" py={12} bg="gray.50">
+      <Box minH="100vh" py={12} bg="bg.subtle">
         <Container maxW="2xl">
           <Heading size="lg" mb={6}>
             Edit post
@@ -146,7 +146,7 @@ export default function AdminEditPostPage() {
               />
             </Field.Root>
             {error && (
-              <Text color="red.500" mb={4}>
+              <Text color="fg.error" mb={4}>
                 {error}
               </Text>
             )}

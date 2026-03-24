@@ -70,7 +70,7 @@ export default function AdminListPage() {
       <Head>
         <title>Admin – Posts</title>
       </Head>
-      <Box minH="100vh" py={12} bg="gray.50">
+      <Box minH="100vh" py={12} bg="bg.subtle">
         <Container maxW="3xl">
           <Box
             display="flex"
@@ -96,23 +96,24 @@ export default function AdminListPage() {
             <Link href="/admin/new">New post</Link>
           </Button>
           {error && (
-            <Text color="red.500" mb={4}>
+            <Text color="fg.error" mb={4}>
               {error}
             </Text>
           )}
           {loading ? (
             <Spinner />
           ) : posts.length === 0 ? (
-            <Text color="gray.600">No posts yet.</Text>
+            <Text color="fg.muted">No posts yet.</Text>
           ) : (
             <Stack gap={4}>
               {posts.map((post) => (
                 <Box
                   key={post.slug}
                   p={4}
-                  bg="white"
+                  bg="bg.panel"
                   rounded="md"
                   borderWidth="1px"
+                  borderColor="border"
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
@@ -120,7 +121,7 @@ export default function AdminListPage() {
                   <Box>
                     <Text fontWeight="medium">{post.title}</Text>
                     {post.publishedAt && (
-                      <Text fontSize="sm" color="gray.500">
+                      <Text fontSize="sm" color="fg.subtle">
                         {new Date(post.publishedAt).toLocaleDateString()}
                       </Text>
                     )}

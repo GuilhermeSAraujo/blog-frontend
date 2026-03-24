@@ -86,22 +86,19 @@ export default function PostPage({
 
   if (!post) return null;
 
-  const bg = "gray.50";
-  const muted = "gray.600";
-
   return (
     <>
       <Head>
         <title>{post.title}</title>
         <meta name="description" content={post.excerpt || undefined} />
       </Head>
-      <Box bg={bg} minH="100vh" py={12}>
+      <Box bg="bg.subtle" minH="100vh" py={12}>
         <Container maxW="3xl">
           <Heading as="h1" size="2xl" mb={4}>
             {post.title}
           </Heading>
           {post.publishedAt && (
-            <Text fontSize="sm" color={muted} mb={6}>
+            <Text fontSize="sm" color="fg.muted" mb={6}>
               {new Date(post.publishedAt).toLocaleDateString(undefined, {
                 year: "numeric",
                 month: "long",
@@ -147,9 +144,11 @@ export default function PostPage({
                   a: ({ children, href }) => (
                     <Link
                       href={href ?? "#"}
-                      color="blue.600"
+                      color="fg.info"
                       textDecoration="underline"
-                      _hover={{ color: "blue.700" }}
+                      _hover={{
+                        color: { base: "blue.800", _dark: "blue.300" },
+                      }}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -161,7 +160,7 @@ export default function PostPage({
                       as="code"
                       px={1}
                       py={0.5}
-                      bg="gray.100"
+                      bg="bg.muted"
                       rounded="sm"
                       fontSize="0.95em"
                     >
