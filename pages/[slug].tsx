@@ -14,6 +14,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
+import { getServerApiBaseUrl } from "../lib/api";
 import { Post, postFromWire } from "../lib/types";
 
 type PostPageProps = {
@@ -21,7 +22,7 @@ type PostPageProps = {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const baseUrl = process.env.API_BASE_URL;
+  const baseUrl = getServerApiBaseUrl();
 
   if (!baseUrl) {
     return { paths: [], fallback: "blocking" };
@@ -47,7 +48,7 @@ export const getStaticProps: GetStaticProps<PostPageProps> = async (
   context
 ) => {
   const slug = context.params?.slug;
-  const baseUrl = process.env.API_BASE_URL;
+  const baseUrl = getServerApiBaseUrl();
 
   if (!baseUrl || !slug || typeof slug !== "string") {
     return { notFound: true, revalidate: 300 };

@@ -13,7 +13,7 @@ import {
   Text,
   Textarea,
 } from "@chakra-ui/react";
-import { getApiBaseUrl } from "../../lib/api";
+import { apiPath } from "../../lib/api";
 import { useAdminAuth } from "../../lib/useAdminAuth";
 
 export default function AdminNewPostPage() {
@@ -34,7 +34,7 @@ export default function AdminNewPostPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${getApiBaseUrl()}/api/post`, {
+      const res = await fetch(apiPath("/api/post"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

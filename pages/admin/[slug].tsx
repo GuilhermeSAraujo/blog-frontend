@@ -14,7 +14,7 @@ import {
   Text,
   Textarea,
 } from "@chakra-ui/react";
-import { getApiBaseUrl } from "../../lib/api";
+import { apiPath } from "../../lib/api";
 import { useAdminAuth } from "../../lib/useAdminAuth";
 import { Post, postFromWire, postEditsToWire } from "../../lib/types";
 
@@ -31,7 +31,7 @@ export default function AdminEditPostPage() {
   useEffect(() => {
     if (!isLoggedIn || !slug || typeof slug !== "string") return;
     let cancelled = false;
-    fetch(`${getApiBaseUrl()}/api/post/${encodeURIComponent(slug)}`)
+    fetch(apiPath(`/api/post/${encodeURIComponent(slug)}`))
       .then((res) => {
         if (res.status === 404) throw new Error("not-found");
         if (!res.ok) throw new Error(res.statusText);
@@ -59,7 +59,7 @@ export default function AdminEditPostPage() {
     setError("");
     try {
       const res = await fetch(
-        `${getApiBaseUrl()}/api/post/${encodeURIComponent(slug)}`,
+        apiPath(`/api/post/${encodeURIComponent(slug)}`),
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

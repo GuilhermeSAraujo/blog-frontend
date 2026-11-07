@@ -11,7 +11,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { getApiBaseUrl } from "../../lib/api";
+import { apiPath } from "../../lib/api";
 import { useAdminAuth } from "../../lib/useAdminAuth";
 import { Post, postFromWire, sortPostsByDate } from "../../lib/types";
 
@@ -27,7 +27,7 @@ export default function AdminListPage() {
     let cancelled = false;
     setLoading(true);
     setError("");
-    fetch(`${getApiBaseUrl()}/api/post`)
+    fetch(apiPath("/api/post"))
       .then((res) => {
         if (!res.ok) throw new Error(res.statusText);
         return res.json();

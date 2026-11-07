@@ -2,8 +2,7 @@ import type { GetStaticProps, InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { Box, chakra, Container, Heading, Stack, Text } from "@chakra-ui/react";
-
-const PostCardLink = chakra(Link);
+import { getServerApiBaseUrl } from "../lib/api";
 import {
   Post,
   postFromWire,
@@ -11,12 +10,14 @@ import {
   sortPostsByDate,
 } from "../lib/types";
 
+const PostCardLink = chakra(Link);
+
 type HomePageProps = {
   posts: Post[];
 };
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  const baseUrl = process.env.API_BASE_URL;
+  const baseUrl = getServerApiBaseUrl();
 
   if (!baseUrl) {
     console.error("API_BASE_URL is not defined");

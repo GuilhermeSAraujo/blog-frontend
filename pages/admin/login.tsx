@@ -10,7 +10,7 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
-import { getApiBaseUrl } from "../../lib/api";
+import { apiPath } from "../../lib/api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
+      const res = await fetch(apiPath("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
